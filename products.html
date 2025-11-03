@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products - Dealora</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #e6e6e6;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 24px;
+      color: #00eaff;
+      font-weight: bold;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links a {
+      color: #e6e6e6;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .active {
+      color: #00eaff;
+    }
+
+    .category-bar {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .category-btn {
+      background: #121212;
+      border: 1px solid #00eaff;
+      color: #e6e6e6;
+      border-radius: 8px;
+      margin: 5px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 600;
+    }
+    .category-btn:hover { transform: translateY(-2px); }
+    .category-btn.active {
+      background: #00eaff;
+      color: #000;
+      box-shadow: 0 6px 18px rgba(0,234,255,0.12);
+    }
+
+    .search-bar {
+      text-align: center;
+      margin: 10px 0 28px;
+    }
+    .search-bar input {
+      width: 70%;
+      max-width: 700px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid #00eaff;
+      background: #0d1117;
+      color: #e6e6e6;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    .search-bar input:focus {
+      outline: none;
+      box-shadow: 0 0 12px rgba(0, 234, 255, 0.18);
+    }
+
+    .products-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+      padding-bottom: 80px;
+    }
+    .product-card {
+      border: 1px solid #222;
+      border-radius: 10px;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      padding: 12px;
+      width: 230px;
+      transition: 0.25s;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0, 234, 255, 0.06);
+    }
+    .product-card img {
+      width: 100%;
+      border-radius: 8px;
+      height: 150px;
+      object-fit: cover;
+    }
+    .product-card h3 {
+      font-size: 16px;
+      margin: 10px 0 6px;
+      color: #e6faff;
+    }
+    .product-card p.desc {
+      color: #9aa6ad;
+      font-size: 13px;
+      margin: 6px 0 8px;
+      min-height: 34px;
+    }
+    .price {
+      color: #00eaff;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .product-card .btn {
+      background: #00eaff;
+      border: none;
+      padding: 9px 12px;
+      margin-top: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #000;
+      font-weight: bold;
+    }
+    .product-card .btn-wishlist {
+      background: #ff4081;
+      color: #fff;
+      margin-left: 6px;
+    }
+
+    .results-info {
+      text-align: center;
+      color: #c9d1d9;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .search-bar input { width: 90%; }
+      .product-card { width: 46%; }
+    }
+    @media (max-width: 480px) {
+      .product-card { width: 92%; }
+      header { padding: 12px 18px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">
+  <img src="images/logo.jpeg" alt="Dealora Logo" class="nav-logo">
+  <span class="logo-text">Dealora</span>
+</div>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="products.html" class="active">Products</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
+    <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+  </ul>
+</header>
+
+<section class="products-section">
+  <h2 style="text-align:center; margin-top:18px;">Explore Our Collections</h2>
+
+  <div class="category-bar" id="categoryBar">
+    <!-- Buttons created in JS to keep markup short -->
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search for products across all categories..." />
+  </div>
+
+  <div class="results-info" id="resultsInfo"></div>
+
+  <div class="products-container" id="productGrid"></div>
+</section>
+
+<script>
+  // ---------- DATA: 7 categories, 10 items each (70 items) ----------
+  // Using picsum.photos seeds so images are unique and deterministic
+  const categories = ["Tech","Fashion","Makeup","Accessories","Home Decor","Sports","Books"];
+
+  // helper to generate a sample description
+  function sampleDesc(cat, name) {
+    return `${name} — premium ${cat.toLowerCase()} pick with excellent reviews.`;
+  }
+
+  const products = [
+    // Tech (10)
+    {id: 1,  category:"Tech", name:"Ultrabook Pro 14", price:74999, img:"https://media.istockphoto.com/id/1430595783/photo/laptop-isolated-on-white-background.jpg?b=1&s=612x612&w=0&k=20&c=brQ6-O5ViwHK_N9lWHBDjTTQ79PCa1aACZa5MyNNQPQ=", desc: sampleDesc("Tech","Ultrabook Pro 14")},
+    {id: 2,  category:"Tech", name:"Gaming Desktop GX", price:129999, img:"https://images.pexels.com/photos/7858742/pexels-photo-7858742.jpeg", desc: sampleDesc("Tech","Gaming Desktop GX")},
+    {id: 3,  category:"Tech", name:"RTX 4080 GPU", price:89999, img:"https://images.pexels.com/photos/32728403/pexels-photo-32728403.jpeg", desc: sampleDesc("Tech","RTX 4080 GPU")},
+    {id: 4,  category:"Tech", name:"27\" 4K Monitor", price:27999, img:"https://images.pexels.com/photos/6853443/pexels-photo-6853443.jpeg", desc: sampleDesc("Tech","27\" 4K Monitor")},
+    {id: 5,  category:"Tech", name:"Pro Mechanical Keyboard", price:7999, img:"https://images.pexels.com/photos/3519358/pexels-photo-3519358.jpeg", desc: sampleDesc("Tech","Pro Mechanical Keyboard")},
+    {id: 6,  category:"Tech", name:"Wireless Gaming Mouse", price:3499, img:"https://images.pexels.com/photos/7091925/pexels-photo-7091925.jpeg", desc: sampleDesc("Tech","Wireless Gaming Mouse")},
+    {id: 7,  category:"Tech", name:"Studio Headphones", price:5999, img:"https://images.pexels.com/photos/3587478/pexels-photo-3587478.jpeg", desc: sampleDesc("Tech","Studio Headphones")},
+    {id: 8,  category:"Tech", name:"Portable SSD 1TB", price:10999, img:"https://images.pexels.com/photos/30758135/pexels-photo-30758135.jpeg", desc: sampleDesc("Tech","Portable SSD 1TB")},
+    {id: 9,  category:"Tech", name:"4K Webcam", price:4499, img:"https://images.pexels.com/photos/24347621/pexels-photo-24347621.jpeg", desc: sampleDesc("Tech","4K Webcam")},
+    {id: 10, category:"Tech", name:"Mesh Wi-Fi System", price:12999, img:"https://images.pexels.com/photos/8108717/pexels-photo-8108717.jpeg", desc: sampleDesc("Tech","Mesh Wi-Fi System")},
+
+    // Fashion (10)
+    {id: 11, category:"Fashion", name:"Denim Jacket", price:2499, img:"https://images.pexels.com/photos/1105058/pexels-photo-1105058.jpeg", desc: sampleDesc("Fashion","Denim Jacket")},
+    {id: 12, category:"Fashion", name:"Casual Sneakers", price:3499, img:"https://images.pexels.com/photos/10084175/pexels-photo-10084175.jpeg", desc: sampleDesc("Fashion","Casual Sneakers")},
+    {id: 13, category:"Fashion", name:"Slim Fit Jeans", price:1999, img:"https://images.pexels.com/photos/9211607/pexels-photo-9211607.jpeg", desc: sampleDesc("Fashion","Slim Fit Jeans")},
+    {id: 14, category:"Fashion", name:"Classic Leather Jacket", price:9999, img:"https://images.pexels.com/photos/33715856/pexels-photo-33715856.jpeg", desc: sampleDesc("Fashion","Classic Leather Jacket")},
+    {id: 15, category:"Fashion", name:"Formal Shirt Pack", price:1799, img:"https://images.pexels.com/photos/7821262/pexels-photo-7821262.jpeg", desc: sampleDesc("Fashion","Formal Shirt Pack")},
+    {id: 16, category:"Fashion", name:"Wool Scarf", price:799, img:"https://images.pexels.com/photos/3605077/pexels-photo-3605077.jpeg", desc: sampleDesc("Fashion","Wool Scarf")},
+    {id: 17, category:"Fashion", name:"Summer Dress", price:2199, img:"https://images.pexels.com/photos/9788969/pexels-photo-9788969.jpeg", desc: sampleDesc("Fashion","Summer Dress")},
+    {id: 18, category:"Fashion", name:"Sport Shorts", price:899, img:"https://images.pexels.com/photos/5730452/pexels-photo-5730452.jpeg", desc: sampleDesc("Fashion","Sport Shorts")},
+    {id: 19, category:"Fashion", name:"Canvas Tote Bag", price:599, img:"https://images.pexels.com/photos/19197737/pexels-photo-19197737.jpeg", desc: sampleDesc("Fashion","Canvas Tote Bag")},
+    {id: 20, category:"Fashion", name:"Formal Loafers", price:2999, img:"https://images.pexels.com/photos/4593811/pexels-photo-4593811.jpeg", desc: sampleDesc("Fashion","Formal Loafers")},
+
+    // Makeup (6)
+    {id: 21, category:"Makeup", name:"Matte Lipstick Set", price:899, img:"https://images.pexels.com/photos/2535928/pexels-photo-2535928.jpeg", desc: sampleDesc("Makeup","Matte Lipstick Set")},
+    {id: 22, category:"Makeup", name:"Liquid Foundation", price:1299, img:"https://images.pexels.com/photos/8981524/pexels-photo-8981524.jpeg", desc: sampleDesc("Makeup","Liquid Foundation")},
+    {id: 23, category:"Makeup", name:"Waterproof Mascara", price:599, img:"https://images.pexels.com/photos/2637820/pexels-photo-2637820.jpeg", desc: sampleDesc("Makeup","Waterproof Mascara")},
+    {id: 24, category:"Makeup", name:"Eyeshadow Palette", price:1499, img:"https://images.pexels.com/photos/7290609/pexels-photo-7290609.jpeg", desc: sampleDesc("Makeup","Eyeshadow Palette")},
+    {id: 25, category:"Makeup", name:"Blush Compact", price:499, img:"https://images.pexels.com/photos/13019088/pexels-photo-13019088.jpeg", desc: sampleDesc("Makeup","Blush Compact")},
+    {id: 26, category:"Makeup", name:"Makeup Brushes Set", price:999, img:"https://images.pexels.com/photos/7446415/pexels-photo-7446415.jpeg", desc: sampleDesc("Makeup","Makeup Brushes Set")},
+
+    // Accessories (6)
+    {id: 27, category:"Accessories", name:"Leather Wallet", price:1199, img:"https://images.pexels.com/photos/4386178/pexels-photo-4386178.jpeg", desc: sampleDesc("Accessories","Leather Wallet")},
+    {id: 28, category:"Accessories", name:"Wrist Watch Classic", price:4999, img:"https://images.pexels.com/photos/173716/pexels-photo-173716.jpeg", desc: sampleDesc("Accessories","Wrist Watch Classic")},
+    {id: 29, category:"Accessories", name:"Sunglasses Polarized", price:1599, img:"https://images.pexels.com/photos/11668301/pexels-photo-11668301.jpeg", desc: sampleDesc("Accessories","Sunglasses Polarized")},
+    {id: 30, category:"Accessories", name:"Silk Tie", price:699, img:"https://images.pexels.com/photos/32392710/pexels-photo-32392710.jpeg", desc: sampleDesc("Accessories","Silk Tie")},
+    {id: 31, category:"Accessories", name:"Plane-friendly Backpack", price:2999, img:"https://images.pexels.com/photos/2905238/pexels-photo-2905238.jpeg", desc: sampleDesc("Accessories","Plane-friendly Backpack")},
+    {id: 32, category:"Accessories", name:"Key Organizer", price:399, img:"https://images.pexels.com/photos/2402712/pexels-photo-2402712.jpeg", desc: sampleDesc("Accessories","Key Organizer")},
+
+    // Home Decor (6)
+    {id: 33, category:"Home Decor", name:"Table Lamp Modern", price:1299, img:"https://images.pexels.com/photos/1112598/pexels-photo-1112598.jpeg", desc: sampleDesc("Home Decor","Table Lamp Modern")},
+    {id: 34, category:"Home Decor", name:"Decorative Vase", price:799, img:"https://images.pexels.com/photos/34446612/pexels-photo-34446612.jpeg", desc: sampleDesc("Home Decor","Decorative Vase")},
+    {id: 35, category:"Home Decor", name:"Wall Art Print", price:1499, img:"https://images.pexels.com/photos/5642100/pexels-photo-5642100.jpeg", desc: sampleDesc("Home Decor","Wall Art Print")},
+    {id: 36, category:"Home Decor", name:"Cushion Cover Set", price:599, img:"https://images.pexels.com/photos/6207448/pexels-photo-6207448.jpeg", desc: sampleDesc("Home Decor","Cushion Cover Set")},
+    {id: 37, category:"Home Decor", name:"Aromatherapy Diffuser", price:1199, img:"https://images.pexels.com/photos/6915312/pexels-photo-6915312.jpeg", desc: sampleDesc("Home Decor","Aromatherapy Diffuser")},
+    {id: 38, category:"Home Decor", name:"Indoor Plant Pot", price:499, img:"https://images.pexels.com/photos/3952027/pexels-photo-3952027.jpeg", desc: sampleDesc("Home Decor","Indoor Plant Pot")},
+
+    // Sports (6)
+    {id: 39, category:"Sports", name:"Yoga Mat Pro", price:1299, img:"https://images.pexels.com/photos/6740753/pexels-photo-6740753.jpeg", desc: sampleDesc("Sports","Yoga Mat Pro")},
+    {id: 40, category:"Sports", name:"Fitness Tracker Band", price:2999, img:"https://images.pexels.com/photos/4436303/pexels-photo-4436303.jpeg", desc: sampleDesc("Sports","Fitness Tracker Band")},
+    {id: 41, category:"Sports", name:"Resistance Bands Set", price:799, img:"https://images.pexels.com/photos/8846214/pexels-photo-8846214.jpeg", desc: sampleDesc("Sports","Resistance Bands Set")},
+    {id: 42, category:"Sports", name:"Basketball Pro", price:1199, img:"https://images.pexels.com/photos/8084787/pexels-photo-8084787.jpeg", desc: sampleDesc("Sports","Basketball Pro")},
+    {id: 43, category:"Sports", name:"Tennis Racket", price:2499, img:"https://images.pexels.com/photos/5739121/pexels-photo-5739121.jpeg", desc: sampleDesc("Sports","Tennis Racket")},
+    {id: 44, category:"Sports", name:"Cycling Helmet", price:1699, img:"https://images.pexels.com/photos/8926957/pexels-photo-8926957.jpeg", desc: sampleDesc("Sports","Cycling Helmet")},
+
+    // Books (6)
+    {id: 45, category:"Books", name:"Self-Help Bestseller", price:499, img:"https://images.pexels.com/photos/267586/pexels-photo-267586.jpeg", desc: sampleDesc("Books","Self-Help Bestseller")},
+    {id: 46, category:"Books", name:"Modern Fiction Novel", price:399, img:"https://images.pexels.com/photos/30127889/pexels-photo-30127889.jpeg", desc: sampleDesc("Books","Modern Fiction Novel")},
+    {id: 47, category:"Books", name:"Cookbook Deluxe", price:699, img:"https://images.pexels.com/photos/7172064/pexels-photo-7172064.jpeg", desc: sampleDesc("Books","Cookbook Deluxe")},
+    {id: 48, category:"Books", name:"Children's Story Pack", price:599, img:"https://images.pexels.com/photos/6437499/pexels-photo-6437499.jpeg", desc: sampleDesc("Books","Children's Story Pack")},
+    {id: 49, category:"Books", name:"Business Guide", price:799, img:"https://images.pexels.com/photos/34500250/pexels-photo-34500250.jpeg", desc: sampleDesc("Books","Business Guide")},
+    {id: 50, category:"Books", name:"Photography Manual", price:899, img:"https://images.pexels.com/photos/1973889/pexels-photo-1973889.jpeg", desc: sampleDesc("Books","Photography Manual")},
+  ];
+
+  // ---------- UI & Logic ----------
+  const productGrid = document.getElementById("productGrid");
+  const searchInput = document.getElementById("searchInput");
+  const resultsInfo = document.getElementById("resultsInfo");
+  const categoryBar = document.getElementById("categoryBar");
+
+  let activeCategory = "Tech"; // default
+
+  // Build category buttons
+  function buildCategoryButtons() {
+    categoryBar.innerHTML = "";
+    categories.forEach(cat => {
+      const btn = document.createElement("button");
+      btn.className = "category-btn" + (cat === activeCategory ? " active" : "");
+      btn.textContent = cat;
+      btn.onclick = () => { setActiveCategory(cat); };
+      categoryBar.appendChild(btn);
+    });
+  }
+
+  function setActiveCategory(cat) {
+    activeCategory = cat;
+    // update button active state
+    document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", b.textContent === cat));
+    // if search is empty, render category; if search has text, show search results still
+    if (!searchInput.value.trim()) {
+      renderProducts(products.filter(p => p.category === cat));
+      resultsInfo.textContent = '';
+    } else {
+      performGlobalSearch(searchInput.value.trim());
+    }
+  }
+
+  // render an array of products
+  function renderProducts(list) {
+    productGrid.innerHTML = "";
+    if (!list || list.length === 0) {
+      productGrid.innerHTML = `<div style="color:#9aa6ad; text-align:center; width:100%; padding:40px">No products found.</div>`;
+      return;
+    }
+    list.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "product-card";
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.name}" onclick="viewProduct(${p.id})" style="cursor:pointer;" />
+        <h3 onclick="viewProduct(${p.id})" style="cursor:pointer;">${p.name}</h3>
+        <p class="desc">${p.desc}</p>
+        <div class="price">₹${p.price.toLocaleString()}</div>
+        <div style="display:flex; justify-content:center; gap:8px;">
+          <button class="btn" onclick="addToCart(${p.id}, '${escapeHtml(p.name)}', ${p.price}, this)">Add to Cart</button>
+          <button class="btn btn-wishlist" onclick="addToWishlist(${p.id}, '${escapeHtml(p.name)}', ${p.price}, this)">Wishlist</button>
+        </div>
+      `;
+      productGrid.appendChild(div);
+    });
+  }
+
+  // global search across all categories
+  function performGlobalSearch(query) {
+    if (!query) {
+      // empty search -> show active category
+      renderProducts(products.filter(p => p.category === activeCategory));
+      resultsInfo.textContent = '';
+      return;
+    }
+    const q = query.toLowerCase();
+    const matches = products.filter(p => (p.name + " " + p.desc + " " + p.category).toLowerCase().includes(q));
+    resultsInfo.textContent = `Showing ${matches.length} result(s) for "${query}" across all categories.`;
+    renderProducts(matches);
+  }
+
+  // sanitize single quotes in names passed to onclick inline (simple helper)
+  function escapeHtml(str) {
+    return str.replace(/'/g, "\\'");
+  }
+
+  // ---------- Cart & Wishlist ----------
+  function addToCart(id, name, price, btn) {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const image = btn.closest('.product-card').querySelector('img').src;
+    const existing = cart.find(item => item.id === id);
+    if (existing) existing.quantity += 1;
+    else cart.push({ id, name, price, image, quantity: 1 });
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    const prev = btn.textContent;
+    btn.textContent = "Added ✓";
+    setTimeout(() => btn.textContent = prev, 900);
+  }
+
+  function addToWishlist(id, name, price, btn) {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const image = btn.closest('.product-card').querySelector('img').src;
+    if (!wishlist.find(item => item.id === id)) {
+      wishlist.push({ id, name, price, image });
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      const prev = btn.textContent;
+      btn.textContent = "Added ❤️";
+      setTimeout(() => btn.textContent = prev, 900);
+    } else {
+      alert("Already in wishlist!");
+    }
+  }
+
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    document.getElementById("cart-count").textContent = cart.reduce((sum, i) => sum + i.quantity, 0);
+  }
+
+  function logout() {
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  }
+
+  // ---------- Events ----------
+  searchInput.addEventListener("input", (e) => {
+    const q = e.target.value.trim();
+    performGlobalSearch(q);
+  });
+  function viewProduct(id) {
+  window.location.href = `product.html?id=${id}`;
+  }
+
+  // initialize UI
+  buildCategoryButtons();
+  setActiveCategory(activeCategory);
+  updateCartCount();
+
+  // Expose functions to global so inline onclick can call them
+  window.addToCart = addToCart;
+  window.addToWishlist = addToWishlist;
+  window.logout = logout;
+  localStorage.setItem("allProducts", JSON.stringify(products));
+</script>
+</body>
+</html>

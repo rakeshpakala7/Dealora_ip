@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details - Dealora</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #e6e6e6;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 24px;
+      color: #00eaff;
+      font-weight: bold;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links a {
+      color: #e6e6e6;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .active {
+      color: #00eaff;
+    }
+
+    .product-details {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      padding: 40px;
+    }
+    .product-image {
+      flex: 1;
+      min-width: 300px;
+      max-width: 450px;
+    }
+    .product-image img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 234, 255, 0.1);
+    }
+    .product-info {
+      flex: 1;
+      max-width: 500px;
+    }
+    .product-info h2 {
+      font-size: 26px;
+      margin-bottom: 10px;
+      color: #00eaff;
+    }
+    .product-info p {
+      line-height: 1.6;
+      color: #ccc;
+    }
+    .price {
+      font-size: 22px;
+      font-weight: bold;
+      color: #00eaff;
+      margin: 15px 0;
+    }
+    .btn {
+      display: inline-block;
+      background: #00eaff;
+      color: #000;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+    .btn-wishlist {
+      background: #ff4081;
+      color: white;
+    }
+    .specs {
+      margin-top: 20px;
+      background: #121212;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .specs h3 {
+      color: #00eaff;
+      margin-bottom: 10px;
+    }
+    .reviews {
+      margin-top: 20px;
+      background: #121212;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .reviews h3 {
+      color: #00eaff;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+  <img src="images/logo.jpeg" alt="Dealora Logo" class="nav-logo">
+  <span class="logo-text">Dealora</span>
+</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
+      <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+    </ul>
+  </header>
+
+  <section class="product-details" id="product-details">
+    <!-- Product content loads here -->
+  </section>
+
+  <script>
+    // Get ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const productId = parseInt(params.get("id"));
+
+    // Load all products from products.html
+    const products = JSON.parse(localStorage.getItem("allProducts")) || [];
+
+    const product = products.find(p => p.id === productId);
+
+    const container = document.getElementById("product-details");
+
+    if (!product) {
+      container.innerHTML = "<h2>Product not found</h2>";
+    } else {
+      container.innerHTML = `
+        <div class="product-image">
+          <img src="${product.img}" alt="${product.name}">
+        </div>
+        <div class="product-info">
+          <h2>${product.name}</h2>
+          <p>${product.desc}</p>
+          <div class="price">₹${product.price.toLocaleString()}</div>
+          <button class="btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, this)">Add to Cart</button>
+          <button class="btn btn-wishlist" onclick="addToWishlist(${product.id}, '${product.name}', ${product.price}, this)">Add to Wishlist</button>
+          <div class="specs">
+            <h3>Specifications</h3>
+            <ul>
+              <li>Category: ${product.category}</li>
+              <li>Warranty: 1 Year Manufacturer</li>
+              <li>Free Shipping Available</li>
+            </ul>
+          </div>
+          <div class="reviews">
+            <h3>Customer Reviews</h3>
+            <p>⭐⭐⭐⭐☆ (4.5/5 based on 128 reviews)</p>
+            <p>“Great product quality and fast delivery!”</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function addToCart(id, name, price, btn) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const image = product.img;
+      const existing = cart.find(item => item.id === id);
+      if (existing) existing.quantity += 1;
+      else cart.push({ id, name, price, image, quantity: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartCount();
+      btn.textContent = "Added ✓";
+      setTimeout(() => btn.textContent = "Add to Cart", 900);
+    }
+
+    function addToWishlist(id, name, price, btn) {
+      const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const image = product.img;
+      if (!wishlist.find(item => item.id === id)) {
+        wishlist.push({ id, name, price, image });
+        localStorage.setItem("wishlist", JSON.stringify(wishlist));
+        btn.textContent = "Added ❤️";
+        setTimeout(() => btn.textContent = "Add to Wishlist", 900);
+      } else {
+        alert("Already in wishlist!");
+      }
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      document.getElementById("cart-count").textContent =
+        cart.reduce((sum, i) => sum + i.quantity, 0);
+    }
+
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "login.html";
+    }
+
+    updateCartCount();
+  </script>
+</body>
+</html>

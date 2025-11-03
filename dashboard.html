@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Dealora</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .wishlist-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #1a1a1a;
+      border-radius: 8px;
+    }
+    .wishlist-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+    .wishlist-item-details {
+      flex: 1;
+    }
+    .wishlist-item-details h4 {
+      margin: 0 0 5px 0;
+    }
+    .wishlist-item-details .price {
+      color: #00eaff;
+      font-weight: bold;
+    }
+    .remove-btn {
+      background: #ff4d4f;
+      border: none;
+      padding: 5px 10px;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .edit-btn {
+      background: #00eaff;
+      border: none;
+      color: #000;
+      padding: 5px 12px;
+      margin-right: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #00eaff;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 6px;
+      display: none;
+      font-weight: 600;
+      z-index: 1000;
+    }
+    .notification.show {
+      display: block;
+      animation: fadeInOut 2.5s ease;
+    }
+    @keyframes fadeInOut {
+      0% {opacity: 0; transform: translateY(-10px);}
+      10% {opacity: 1; transform: translateY(0);}
+      90% {opacity: 1;}
+      100% {opacity: 0; transform: translateY(-10px);}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">
+  <img src="images/logo.jpeg" alt="Dealora Logo" class="nav-logo">
+  <span class="logo-text">Dealora</span>
+</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
+        <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="dashboard-section">
+    <div class="dashboard-container">
+      <aside class="sidebar">
+        <div class="user-profile">
+          <div class="avatar">👤</div>
+          <h3 id="user-name">User Name</h3>
+          <p id="user-email">user@email.com</p>
+        </div>
+        <ul class="sidebar-menu">
+          <li><a href="#" onclick="showSection('profile')" class="active">Profile</a></li>
+          <li><a href="#" onclick="showSection('orders')">My Orders</a></li>
+          <li><a href="#" onclick="showSection('wishlist')">Wishlist</a></li>
+          <li><a href="#" onclick="showSection('settings')">Settings</a></li>
+        </ul>
+      </aside>
+
+      <main class="dashboard-content">
+        <!-- Profile Section -->
+        <div id="profile" class="section active">
+          <h2>My Profile</h2>
+          <form id="profile-form">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="profile-name" placeholder="Your name" disabled>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="profile-email" placeholder="Your email" readonly>
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="profile-phone" placeholder="Your phone number" disabled>
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <textarea id="profile-address" placeholder="Your address" disabled></textarea>
+            </div>
+            <button type="button" class="edit-btn" onclick="enableEdit()">Edit Profile</button>
+            <button type="button" class="btn" id="save-btn" onclick="saveProfile()" disabled>Save Changes</button>
+          </form>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders" class="section">
+          <h2>My Orders</h2>
+          <div id="orders-list">
+            <p>No orders yet. <a href="products.html">Start shopping now!</a></p>
+          </div>
+        </div>
+
+        <!-- Wishlist Section -->
+        <div id="wishlist" class="section">
+          <h2>My Wishlist</h2>
+          <div id="wishlist-list">
+            <p>Your wishlist is empty</p>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="section">
+          <h2>Settings</h2>
+          <div class="settings-group">
+            <label><input type="checkbox" id="notifications" checked> Receive Email Notifications</label>
+          </div>
+          <div class="settings-group">
+            <label><input type="checkbox" id="newsletter" checked> Subscribe to Newsletter</label>
+          </div>
+          <div class="settings-group">
+            <button class="btn danger" onclick="changePassword()">Change Password</button>
+            <button class="btn danger" onclick="deleteAccount()">Delete Account</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <div id="notification" class="notification"></div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

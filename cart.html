@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - Dealora</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #e6e6e6;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #111;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 🔹 Logo and site name */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+      color: #00eaff;
+      font-weight: bold;
+    }
+
+    .logo img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #e6e6e6;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover,
+    .active {
+      color: #00eaff;
+    }
+
+    .cart-section {
+      padding: 40px;
+      text-align: center;
+    }
+
+    .cart-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .cart-items {
+      background: #121212;
+      border-radius: 10px;
+      padding: 20px;
+      width: 60%;
+      min-height: 200px;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #222;
+      padding: 15px 0;
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .cart-item h4 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .cart-item p {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .cart-item .quantity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity button {
+      background: #00eaff;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      width: 28px;
+      height: 28px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cart-summary {
+      background: #121212;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      height: fit-content;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      color: #00eaff;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #00eaff;
+      color: #000;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      margin-top: 10px;
+    }
+
+    .empty-cart {
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="images/logo.jpeg" alt="Dealora Logo">
+      <span>Dealora</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Products</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="cart.html" class="active">Cart (<span id="cart-count">0</span>)</a></li>
+      <li><a href="#" onclick="logout()" class="logout-btn">Logout</a></li>
+    </ul>
+  </header>
+
+  <section class="cart-section">
+    <h2>🛍️ Shopping Cart</h2>
+
+    <div id="empty-cart" class="empty-cart" style="display: none;">
+      <h3>Your cart is empty</h3>
+      <p>Start adding items from our products page</p>
+      <a href="products.html" class="btn">Browse Products</a>
+    </div>
+
+    <div class="cart-container" id="cart-container">
+      <div class="cart-items" id="cart-items"></div>
+
+      <div class="cart-summary" id="cart-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-item"><span>Subtotal:</span><span id="subtotal">₹0</span></div>
+        <div class="summary-item"><span>Tax (5%):</span><span id="tax">₹0</span></div>
+        <div class="summary-item"><span>Shipping:</span><span id="shipping">₹0</span></div>
+        <hr>
+        <div class="summary-item total"><span>Total:</span><span id="total">₹0</span></div>
+        <button class="btn checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+        <a href="products.html" class="btn">Continue Shopping</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function loadCart() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const cartItemsContainer = document.getElementById('cart-items');
+      const emptyCart = document.getElementById('empty-cart');
+      const cartSummary = document.getElementById('cart-summary');
+      const cartContainer = document.getElementById('cart-container');
+
+      if (cart.length === 0) {
+        emptyCart.style.display = 'block';
+        cartContainer.style.display = 'none';
+        updateCartCount();
+        return;
+      }
+
+      cartItemsContainer.innerHTML = '';
+      cart.forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('cart-item');
+        div.innerHTML = `
+          <img src="${item.image}" alt="${item.name}">
+          <div>
+            <h4>${item.name}</h4>
+            <p>₹${item.price.toLocaleString()}</p>
+          </div>
+          <div class="quantity">
+            <button onclick="changeQty(${item.id}, -1)">-</button>
+            <span>${item.quantity}</span>
+            <button onclick="changeQty(${item.id}, 1)">+</button>
+          </div>
+          <div><strong>₹${(item.price * item.quantity).toLocaleString()}</strong></div>
+          <button onclick="removeItem(${item.id})" class="btn" style="background:#ff4444;color:white;">X</button>
+        `;
+        cartItemsContainer.appendChild(div);
+      });
+
+      updateSummary();
+    }
+
+    function changeQty(id, delta) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+
+      item.quantity += delta;
+      if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      loadCart();
+    }
+
+    function removeItem(id) {
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart = cart.filter(i => i.id !== id);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      loadCart();
+    }
+
+    function updateSummary() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      const tax = subtotal * 0.05;
+      const shipping = subtotal > 0 ? 150 : 0;
+      const total = subtotal + tax + shipping;
+
+      document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+      document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
+      document.getElementById('shipping').textContent = `₹${shipping}`;
+      document.getElementById('total').textContent = `₹${total.toLocaleString()}`;
+
+      updateCartCount();
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      document.getElementById('cart-count').textContent =
+        cart.reduce((sum, i) => sum + i.quantity, 0);
+    }
+
+    function checkout() {
+      alert("✅ Order placed successfully!");
+      localStorage.removeItem('cart');
+      loadCart();
+    }
+
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    loadCart();
+  </script>
+</body>
+</html>
