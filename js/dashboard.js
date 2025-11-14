@@ -60,17 +60,16 @@ function renderWishlist() {
   const wishlistList = document.getElementById('wishlist-list');
   wishlistList.innerHTML = wishlist.length
     ? wishlist.map(item => `
-      <div class="wishlist-item">
-        <img src="${item.image}" alt="${item.name}">
-        <div class="wishlist-item-details">
-          <h4>${item.name}</h4>
-          <div class="price">₹${item.price}</div>
-        </div>
-        <button class="remove-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
-      </div>
-    `).join('')
-    : '<p>Your wishlist is empty</p>';
-}
+  <div class="wishlist-item">
+    <img src="${item.image}" alt="${item.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:15px;">
+    <div class="wishlist-item-details">
+      <h4>${item.name}</h4>
+      <div class="price">₹${item.price}</div>
+    </div>
+    <button class="remove-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
+  </div>
+`).join('')
+
 
 function removeFromWishlist(id) {
   let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];

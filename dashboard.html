@@ -108,13 +108,43 @@
   <!-- Orders and switching script -->
   <script>
     // Show section logic
-    function showSection(section) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-      document.getElementById(section).classList.add('active');
-      document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
-      if (section === 'orders') loadOrders();
-    }
+   function showSection(section) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+  document.getElementById(section).classList.add('active');
+  document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
+  if (section === 'orders') {
+    loadOrders();
+  }
+  if (section === 'wishlist') {
+    renderWishlist();
+  }
+}
+
+// Add this function for wishlist rendering (you can copy it from dashboard.js):
+function renderWishlist() {
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  const wishlistList = document.getElementById('wishlist-list');
+  wishlistList.innerHTML = wishlist.length
+    ? wishlist.map(item => `
+      <div class="wishlist-item">
+        <img src="${item.image}" alt="${item.name}">
+        <div class="wishlist-item-details">
+          <h4>${item.name}</h4>
+          <div class="price">₹${item.price}</div>
+        </div>
+        <button class="remove-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
+      </div>`).join('')
+    : '<p>Your wishlist is empty</p>';
+}
+
+// Remove item from wishlist function:
+function removeFromWishlist(id) {
+  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  wishlist = wishlist.filter(item => item.id !== id);
+  localStorage.setItem('wishlist', JSON.stringify(wishlist));
+  renderWishlist();
+}
 
     // Load orders from localStorage and display
     function loadOrders() {

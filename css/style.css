@@ -727,17 +727,14 @@ nav {
     box-shadow: 0 0 10px rgba(0, 234, 255, 0.3);
     border-color: #00eaff;
 }
-.wishlist-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  padding: 8px;
-  border: 1px solid #333;
+.wishlist-item img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
   border-radius: 8px;
-  background: #121212;
-  color: #fff;
+  margin-right: 20px;
 }
+
 
 .wishlist-info h4 {
   margin: 0 0 4px 0;
