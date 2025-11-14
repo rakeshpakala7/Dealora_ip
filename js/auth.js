@@ -1,9 +1,9 @@
-// ✅ Check if user is logged in
+// ✅ Check if user is logged in (keeps original redirect behaviour)
 function checkLogin() {
     const isLoggedIn = sessionStorage.getItem('isLoggedIn');
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     
-    // Redirects for access control
+    // Redirects for access control (preserve original behaviour)
     if (!isLoggedIn && currentPage !== 'login.html') {
         window.location.href = 'login.html';
     }
@@ -18,42 +18,53 @@ function checkLogin() {
     }
 }
 
-// ✅ Handle Login
+// ===================== HANDLE LOGIN (backwards-compatible) =====================
 function handleLogin(event) {
-    event.preventDefault();
+    event && event.preventDefault && event.preventDefault();
 
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value.trim();
 
-    const storedEmail = localStorage.getItem('userEmail');
-    const storedPassword = localStorage.getItem('userPassword');
-    const storedName = localStorage.getItem('userName');
+    // First try the users[] array (if exists)
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+    let user = users.find(u => u.email === email && u.password === password);
 
-    if (!storedEmail || !storedPassword) {
-        showNotification('⚠️ No account found. Please sign up first!', 'orange');
+    // Fallback to single-user keys for backward compatibility
+    if (!user) {
+        const storedEmail = localStorage.getItem('userEmail');
+        const storedPassword = localStorage.getItem('userPassword');
+        const storedName = localStorage.getItem('userName');
+
+        if (email === storedEmail && password === storedPassword) {
+            user = { email: storedEmail, password: storedPassword, name: storedName || '' };
+            // Ensure the users[] array includes this user (sync)
+            users = users.filter(u => u.email !== storedEmail);
+            users.push({ name: user.name, email: user.email, password: user.password });
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+    }
+
+    if (!user) {
+        showNotification('❌ Invalid email or password!', 'red');
         return;
     }
 
-    if (email === storedEmail && password === storedPassword) {
-        // ✅ Successful login
-        sessionStorage.setItem('isLoggedIn', 'true');
-        sessionStorage.setItem('userEmail', storedEmail);
-        sessionStorage.setItem('userName', storedName);
+    // Successful login (preserve original session keys)
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('userEmail', user.email);
+    sessionStorage.setItem('userName', user.name || '');
+    sessionStorage.setItem('userPassword', user.password);
 
-        showNotification('✅ Login successful!', 'limegreen');
+    showNotification('✅ Login successful!', 'limegreen');
 
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1200);
-    } else {
-        // ❌ Wrong credentials
-        showNotification('❌ Invalid email or password!', 'red');
-    }
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 1200);
 }
 
-// ✅ Handle Signup
+// ===================== HANDLE SIGNUP (keeps existing single-key behavior + users[]) =====================
 function handleSignup(event) {
-    event.preventDefault();
+    event && event.preventDefault && event.preventDefault();
 
     const name = document.getElementById('signup-name').value.trim();
     const email = document.getElementById('signup-email').value.trim();
@@ -64,32 +75,44 @@ function handleSignup(event) {
         return;
     }
 
-    // ✅ Save new user credentials
+    // Load or init users array
+    let users = JSON.parse(localStorage.getItem('users')) || [];
+
+    // If email already exists in users[], notify
+    if (users.some(u => u.email === email)) {
+        showNotification('⚠️ Email already registered!', 'orange');
+        return;
+    }
+
+    // Push to users[] (primary source going forward)
+    users.push({ name, email, password });
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // ALSO keep the original single-user keys (so existing flows that read them keep working)
     localStorage.setItem('userName', name);
     localStorage.setItem('userEmail', email);
     localStorage.setItem('userPassword', password);
 
     showNotification('🎉 Account created successfully! Please login.', '#00eaff');
 
-    // Switch back to login form
+    // Switch back to login form (preserve original behaviour)
     setTimeout(() => {
         showLogin();
     }, 1000);
 }
 
-// ✅ Switch to Login Form
+// ===================== FORM SWITCH HELPERS (preserve existing functions) =====================
 function showLogin() {
-    document.getElementById('signup-form').classList.remove('active');
-    document.getElementById('login-form').classList.add('active');
+    document.getElementById('signup-form')?.classList.remove('active');
+    document.getElementById('login-form')?.classList.add('active');
 }
 
-// ✅ Switch to Signup Form
 function showSignup() {
-    document.getElementById('login-form').classList.remove('active');
-    document.getElementById('signup-form').classList.add('active');
+    document.getElementById('login-form')?.classList.remove('active');
+    document.getElementById('signup-form')?.classList.add('active');
 }
 
-// ✅ Update user info on navbar (if applicable)
+// ===================== Update user info on navbar (if applicable) =====================
 function updateUserInfo() {
     const userName = sessionStorage.getItem('userName');
     const userEmail = sessionStorage.getItem('userEmail');
@@ -102,7 +125,7 @@ function updateUserInfo() {
     }
 }
 
-// ✅ Logout user
+// ===================== Logout (preserve behavior) =====================
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         sessionStorage.clear();
@@ -113,7 +136,7 @@ function logout() {
     }
 }
 
-// ✅ Show notification message
+// ===================== Notification (keeps your UI) =====================
 function showNotification(message, color = '#00eaff') {
     const notification = document.getElementById('notification');
     if (notification) {
@@ -124,8 +147,18 @@ function showNotification(message, color = '#00eaff') {
         setTimeout(() => {
             notification.classList.remove('show');
         }, 2500);
+    } else {
+        // Fallback: minimal alert if notification element missing
+        console.log('Notification:', message);
     }
 }
 
-// ✅ Run check on page load
+// Run check on page load (preserve original load behavior)
 window.addEventListener('load', checkLogin);
+
+// Expose handlers for forms that use inline onsubmit/onclick (compat)
+window.handleLogin = handleLogin;
+window.handleSignup = handleSignup;
+window.showLogin = showLogin;
+window.showSignup = showSignup;
+window.logout = logout;

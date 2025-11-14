@@ -727,14 +727,17 @@ nav {
     box-shadow: 0 0 10px rgba(0, 234, 255, 0.3);
     border-color: #00eaff;
 }
-.wishlist-item img {
-  width: 120px;
-  height: 80px;
-  object-fit: cover;
+.wishlist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 8px;
+  border: 1px solid #333;
   border-radius: 8px;
-  margin-right: 20px;
+  background: #121212;
+  color: #fff;
 }
-
 
 .wishlist-info h4 {
   margin: 0 0 4px 0;
@@ -815,5 +818,66 @@ nav {
 .logo-text {
   color: #00eaff;
   font-family: 'Poppins', sans-serif;
+}
+/* ===================== MY ORDERS DESIGN ===================== */
+
+.order-box {
+  background: #121212;
+  border: 1px solid #30363d;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.order-box img {
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.order-details {
+  flex: 1;
+}
+
+.order-details h3 {
+  color: #00eaff;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.order-details p {
+  color: #c9d1d9;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.order-status {
+  background: #00eaff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: #000;
+  display: inline-block;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+/* TOTAL SECTION FIX */
+.order-total {
+  text-align: right;
+  font-size: 18px !important;
+  font-weight: bold;
+  color: #00eaff;
+  margin-top: 10px;
+}
+
+/* Container for products in an order */
+.order-items {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #00eaff33;
 }
 

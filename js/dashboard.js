@@ -1,165 +1,321 @@
-// Show specific section
-function showSection(sectionName) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(sectionName).classList.add('active');
-  document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-  document.querySelector(`.sidebar-menu a[onclick="showSection('${sectionName}')"]`).classList.add('active');
-  if (sectionName === 'wishlist') renderWishlist();
+// ---------------- HELPERS ----------------
+function getWishlistKeyForCurrentUser() {
+  const email = sessionStorage.getItem('userEmail');
+  if (!email) return null;
+  return `wishlist_${email.replace(/[@.]/g, '_')}`;
 }
 
-// Enable editing profile
+function getLoggedInUser() {
+  const name = sessionStorage.getItem("userName");
+  const email = sessionStorage.getItem("userEmail");
+  const password = sessionStorage.getItem("userPassword");
+  if (!email) return null;
+
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const found = users.find(u => u.email === email);
+
+  return {
+    name: found?.name || name || '',
+    email,
+    password,
+    phone: found?.phone || '',
+    address: found?.address || ''
+  };
+}
+
+// ---------------- SWITCH SECTIONS ----------------
+function showSection(section) {
+  document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+  const el = document.getElementById(section);
+  if (el) el.classList.add('active');
+
+  document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+  const selector = document.querySelector(`.sidebar-menu a[onclick="showSection('${section}')"]`);
+  if (selector) selector.classList.add('active');
+
+  if (section === 'orders') loadOrders();
+  if (section === 'wishlist') loadWishlist();
+}
+
+// ---------------- PAGE LOAD ----------------
+window.addEventListener('load', () => {
+  const user = getLoggedInUser();
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  document.getElementById('user-name').textContent = user.name || 'User';
+  document.getElementById('user-email').textContent = user.email || '';
+
+  document.getElementById('profile-name').value = user.name || '';
+  document.getElementById('profile-email').value = user.email || '';
+  document.getElementById('profile-phone').value = user.phone || '';
+  document.getElementById('profile-address').value = user.address || '';
+
+  loadProfile();
+  renderWishlist();
+  updateCartCount();
+});
+
+// ---------------- PROFILE ----------------
 function enableEdit() {
-  document.querySelectorAll('#profile-form input, #profile-form textarea').forEach(el => {
-    if (el.id !== 'profile-email') el.disabled = false;
-  });
+  document.getElementById('profile-name').disabled = false;
+  document.getElementById('profile-phone').disabled = false;
+  document.getElementById('profile-address').disabled = false;
   document.getElementById('save-btn').disabled = false;
 }
 
-// Save profile changes
 function saveProfile() {
-  const name = document.getElementById('profile-name').value.trim();
-  const phone = document.getElementById('profile-phone').value.trim();
-  const address = document.getElementById('profile-address').value.trim();
+  const user = getLoggedInUser();
+  if (!user) return;
 
-  if (!name || !phone || !address) {
-    showNotification('⚠️ Please fill all fields!');
-    return;
-  }
+  const newName = document.getElementById('profile-name').value.trim();
+  const newPhone = document.getElementById('profile-phone').value.trim();
+  const newAddress = document.getElementById('profile-address').value.trim();
 
-  const userEmail = sessionStorage.getItem('userEmail');
-  const updatedProfile = { name, phone, address, email: userEmail };
+  let users = JSON.parse(localStorage.getItem('users')) || [];
+  const idx = users.findIndex(u => u.email === user.email);
 
-  sessionStorage.setItem('userProfile', JSON.stringify(updatedProfile));
+  const updated = { ...(users[idx] || {}), name: newName || user.name, email: user.email, password: user.password, phone: newPhone, address: newAddress };
 
-  document.getElementById('user-name').textContent = name;
-  document.getElementById('user-email').textContent = userEmail;
+  if (idx !== -1) users[idx] = updated;
+  else users.push(updated);
 
-  showNotification('✅ Profile updated successfully on Dealora!');
-  document.querySelectorAll('#profile-form input, #profile-form textarea').forEach(el => el.disabled = true);
+  localStorage.setItem('users', JSON.stringify(users));
+  sessionStorage.setItem('userName', updated.name);
+
+  document.getElementById('user-name').textContent = updated.name;
+  showNotification('✅ Profile updated!');
+
+  document.getElementById('profile-name').disabled = true;
+  document.getElementById('profile-phone').disabled = true;
+  document.getElementById('profile-address').disabled = true;
   document.getElementById('save-btn').disabled = true;
 }
 
-// Load profile info
 function loadProfile() {
-  const userEmail = sessionStorage.getItem('userEmail');
-  const userName = sessionStorage.getItem('userName');
-  const userProfile = JSON.parse(sessionStorage.getItem('userProfile')) || {};
+  const user = getLoggedInUser();
+  if (!user) return;
 
-  document.getElementById('user-name').textContent = userProfile.name || userName || 'User';
-  document.getElementById('user-email').textContent = userEmail || 'user@email.com';
-
-  document.getElementById('profile-name').value = userProfile.name || userName || '';
-  document.getElementById('profile-email').value = userEmail || '';
-  document.getElementById('profile-phone').value = userProfile.phone || '';
-  document.getElementById('profile-address').value = userProfile.address || '';
+  document.getElementById('profile-name').value = user.name || '';
+  document.getElementById('profile-email').value = user.email || '';
+  document.getElementById('profile-phone').value = user.phone || '';
+  document.getElementById('profile-address').value = user.address || '';
 }
 
-// Wishlist rendering
-function renderWishlist() {
-  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  const wishlistList = document.getElementById('wishlist-list');
-  wishlistList.innerHTML = wishlist.length
-    ? wishlist.map(item => `
-  <div class="wishlist-item">
-    <img src="${item.image}" alt="${item.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:15px;">
-    <div class="wishlist-item-details">
-      <h4>${item.name}</h4>
-      <div class="price">₹${item.price}</div>
-    </div>
-    <button class="remove-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
-  </div>
-`).join('')
+// ---------------- ORDERS (UPDATED UI) ----------------
+function loadOrders() {
+  const user = getLoggedInUser();
+  const allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+  const container = document.getElementById('orders-list');
 
+  const userOrders = allOrders
+  .filter(o => o.email === user.email)
+  .reverse(); // newest orders first
+
+
+  if (userOrders.length === 0) {
+    container.innerHTML = `<p>No orders yet. <a href="products.html">Start shopping now!</a></p>`;
+    return;
+  }
+
+  container.innerHTML = "";
+
+  userOrders.forEach(order => {
+
+    let subtotal = order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let tax = Math.round(subtotal * 0.05);
+    let shipping = subtotal > 999 ? 0 : 49;
+    let total = subtotal + tax + shipping;
+
+    const statusClass =
+      order.status === "Delivered" ? "status-success" :
+      order.status === "Pending" ? "status-pending" :
+      "status-cancel";
+
+    const div = document.createElement("div");
+    div.classList.add("order-card");
+
+    div.innerHTML = `
+      <div class="order-header">
+        <span>Order #${order.id}</span>
+        <span class="order-status ${statusClass}">${order.status}</span>
+      </div>
+
+      ${order.items
+        .map(
+          item => `
+        <div class="order-item">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="order-item-info">
+            <h4>${item.name}</h4>
+            <p>₹${item.price.toLocaleString()} × ${item.quantity}</p>
+          </div>
+        </div>
+      `
+        )
+        .join("")}
+
+      <div class="order-summary">
+        <div><span>Subtotal</span> <span>₹${subtotal.toLocaleString()}</span></div>
+        <div><span>Tax (5%)</span> <span>₹${tax.toLocaleString()}</span></div>
+        <div><span>Shipping</span> <span>₹${shipping.toLocaleString()}</span></div>
+        <div class="total"><span>Total</span> <span>₹${total.toLocaleString()}</span></div>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// ---------------- WISHLIST ----------------
+function loadWishlist() {
+  const key = getWishlistKeyForCurrentUser();
+  const container = document.getElementById('wishlist-list');
+  if (!container) return;
+
+  if (!key) {
+    container.innerHTML = '<p>Please login to see your wishlist.</p>';
+    return;
+  }
+
+  const wishlist = JSON.parse(localStorage.getItem(key)) || [];
+
+  if (wishlist.length === 0) {
+    container.innerHTML = `<p>Your wishlist is empty</p>`;
+    return;
+  }
+
+  container.innerHTML = '';
+  wishlist.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'wishlist-item';
+    div.style.justifyContent = 'space-between';
+
+    div.innerHTML = `
+      <div style="display:flex; align-items:center; gap:12px;">
+        <img src="${item.image}" alt="${item.name}">
+        <div class="wishlist-info">
+          <h4 style="margin:0; color:#00eaff;">${item.name}</h4>
+          <p style="margin:6px 0 0;">₹${item.price.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn" onclick="moveToCartFromWishlist(${item.id})">Add to Cart</button>
+        <button class="remove-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
 
 function removeFromWishlist(id) {
-  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  wishlist = wishlist.filter(item => item.id !== id);
-  localStorage.setItem('wishlist', JSON.stringify(wishlist));
-  renderWishlist();
+  const key = getWishlistKeyForCurrentUser();
+  if (!key) return showNotification('Login required.');
+
+  let wishlist = JSON.parse(localStorage.getItem(key)) || [];
+  wishlist = wishlist.filter(i => i.id !== id);
+
+  localStorage.setItem(key, JSON.stringify(wishlist));
+  loadWishlist();
+  showNotification("Removed from wishlist!");
 }
 
-// 🔒 Change password with full persistence
-function changePassword() {
-  const userEmail = sessionStorage.getItem('userEmail');
-  const storedPassword = sessionStorage.getItem('userPassword');
+function moveToCartFromWishlist(id) {
+  const key = getWishlistKeyForCurrentUser();
+  if (!key) return showNotification("Login required.");
 
-  const currentPassword = prompt('Enter your current password:');
-  if (!currentPassword) {
-    showNotification('Password change cancelled.');
-    return;
-  }
+  const wishlist = JSON.parse(localStorage.getItem(key)) || [];
+  const item = wishlist.find(i => i.id === id);
+  if (!item) return;
 
-  if (storedPassword && currentPassword !== storedPassword) {
-    showNotification('❌ Incorrect current password!');
-    return;
-  }
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const existing = cart.find(c => c.id === id);
 
-  const newPassword = prompt('Enter your new password (min 6 characters):');
-  if (!newPassword) {
-    showNotification('Password change cancelled.');
-    return;
-  }
+  if (existing) existing.quantity += 1;
+  else cart.push({ ...item, quantity: 1 });
 
-  if (newPassword.length < 6) {
-    showNotification('Password must be at least 6 characters!');
-    return;
-  }
-
-  const confirmPassword = prompt('Confirm your new password:');
-  if (confirmPassword !== newPassword) {
-    showNotification('Passwords do not match!');
-    return;
-  }
-
-  // ✅ Update in sessionStorage
-  sessionStorage.setItem('userPassword', newPassword);
-
-  // ✅ Update in localStorage
-  let users = JSON.parse(localStorage.getItem('users')) || [];
-  users = users.map(u => {
-    if (u.email === userEmail) {
-      return { ...u, password: newPassword };
-    }
-    return u;
-  });
-  localStorage.setItem('users', JSON.stringify(users));
-
-  showNotification('🔐 Password changed successfully for your Dealora account!');
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartCount();
+  removeFromWishlist(id);
 }
 
-// Delete account
-function deleteAccount() {
-  if (confirm('Are you sure you want to delete your Dealora account? This action cannot be undone.')) {
-    sessionStorage.clear();
-    window.location.href = 'login.html';
-  }
-}
-
-// Notification display
-function showNotification(message) {
-  const notification = document.getElementById('notification');
-  notification.textContent = message;
-  notification.classList.add('show');
-  setTimeout(() => notification.classList.remove('show'), 2500);
-}
-
-// Update cart count
+// ---------------- UTILITIES ----------------
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  document.getElementById('cart-count').textContent = cart.reduce((sum, i) => sum + i.quantity, 0);
+  const el = document.getElementById('cart-count');
+  if (el) el.textContent = cart.reduce((sum, i) => sum + i.quantity, 0);
 }
 
-// Logout
-function logout() {
+function showNotification(msg) {
+  const n = document.getElementById("notification");
+  if (!n) return;
+  n.textContent = msg;
+  n.classList.add("show");
+  setTimeout(() => n.classList.remove("show"), 2500);
+}
+
+function renderWishlist() { loadWishlist(); }
+// ===================== CHANGE PASSWORD =====================
+function changePassword() {
+  const currentPassword = prompt("Enter your current password:");
+  if (!currentPassword) return;
+
+  const newPassword = prompt("Enter your new password:");
+  if (!newPassword) return;
+
+  const confirmPassword = prompt("Confirm your new password:");
+  if (newPassword !== confirmPassword) {
+    return showNotification("❌ Passwords do not match!");
+  }
+
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const email = sessionStorage.getItem("userEmail");
+
+  const idx = users.findIndex(u => u.email === email);
+  if (idx === -1) return showNotification("❌ User not found!");
+
+  if (users[idx].password !== currentPassword) {
+    return showNotification("❌ Current password is incorrect!");
+  }
+
+  users[idx].password = newPassword;
+  localStorage.setItem("users", JSON.stringify(users));
+  sessionStorage.setItem("userPassword", newPassword);
+
+  // Also update single-user legacy keys for compatibility
+  localStorage.setItem("userPassword", newPassword);
+
+  showNotification("✅ Password changed successfully!");
+}
+
+// ===================== DELETE ACCOUNT =====================
+function deleteAccount() {
+  if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const email = sessionStorage.getItem("userEmail");
+
+  const updatedUsers = users.filter(u => u.email !== email);
+  localStorage.setItem("users", JSON.stringify(updatedUsers));
+
+  // Remove legacy keys
+  localStorage.removeItem("userEmail");
+  localStorage.removeItem("userName");
+  localStorage.removeItem("userPassword");
+
+  // Clear session
   sessionStorage.clear();
-  showNotification('👋 Logged out successfully from Dealora!');
+
+  showNotification("🗑️ Account deleted successfully!");
+
   setTimeout(() => {
-    window.location.href = 'login.html';
-  }, 800);
+    window.location.href = "login.html";
+  }, 1200);
 }
 
-// Load everything
-window.addEventListener('load', () => {
-  updateCartCount();
-  loadProfile();
-});
+// Expose these to global scope (so buttons in dashboard.html can call them)
+window.changePassword = changePassword;
+window.deleteAccount = deleteAccount;

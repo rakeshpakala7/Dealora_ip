@@ -5,11 +5,151 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Dealora</title>
   <link rel="stylesheet" href="css/style.css">
+
   <style>
-    /* ... your embedded CSS ... (same as before) ... */
-    /* You can copy your style rules here, or keep as in your old file */
+    /* ===== Wishlist Card Design ===== */
+    .wishlist-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #1a1a1a;
+      border-radius: 8px;
+    }
+    .wishlist-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+    .wishlist-item-details { flex: 1; }
+    .wishlist-item-details h4 { margin: 0 0 5px 0; }
+    .wishlist-item-details .price {
+      color: #00eaff;
+      font-weight: bold;
+    }
+    .remove-btn {
+      background: #ff4d4f;
+      border: none;
+      padding: 5px 10px;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* ===== Profile Buttons ===== */
+    .edit-btn {
+      background: #00eaff;
+      border: none;
+      color: #000;
+      padding: 5px 12px;
+      margin-right: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ===== Notification ===== */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #00eaff;
+      color: #000;
+      padding: 10px 20px;
+      border-radius: 6px;
+      display: none;
+      font-weight: 600;
+      z-index: 1000;
+    }
+    .notification.show {
+      display: block;
+      animation: fadeInOut 2.5s ease;
+    }
+    @keyframes fadeInOut {
+      0% {opacity: 0; transform: translateY(-10px);}
+      10% {opacity: 1; transform: translateY(0);}
+      90% {opacity: 1;}
+      100% {opacity: 0; transform: translateY(-10px);}
+    }
+
+    /* ===== ORDER CARD (NEW) — Matches Your Screenshot ===== */
+    .order-card {
+      background: #161616;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #222;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .order-header span {
+      font-size: 14px;
+      color: #999;
+    }
+
+    .order-status {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .status-success { background: #0f5132; color: #9cffb7; }
+    .status-pending { background: #664d03; color: #ffda6a; }
+    .status-cancel { background: #5a1a1a; color: #ff8a8a; }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #222;
+    }
+    .order-item img {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-right: 15px;
+    }
+    .order-item-info h4 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+      color: #fff;
+    }
+    .order-item-info p {
+      margin: 0;
+      color: #00eaff;
+      font-weight: bold;
+    }
+
+    .order-summary {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .order-summary div {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .order-summary .total {
+      font-size: 16px;
+      font-weight: bold;
+      color: #00eaff;
+    }
   </style>
 </head>
+
 <body>
   <header>
     <nav>
@@ -29,12 +169,15 @@
 
   <section class="dashboard-section">
     <div class="dashboard-container">
+
+      <!-- Sidebar -->
       <aside class="sidebar">
         <div class="user-profile">
           <div class="avatar">👤</div>
           <h3 id="user-name">User Name</h3>
           <p id="user-email">user@email.com</p>
         </div>
+
         <ul class="sidebar-menu">
           <li><a href="#" onclick="showSection('profile')" class="active">Profile</a></li>
           <li><a href="#" onclick="showSection('orders')">My Orders</a></li>
@@ -43,41 +186,48 @@
         </ul>
       </aside>
 
+      <!-- Main -->
       <main class="dashboard-content">
-        <!-- Profile Section -->
+
+        <!-- Profile -->
         <div id="profile" class="section active">
           <h2>My Profile</h2>
+
           <form id="profile-form">
             <div class="form-group">
               <label>Full Name</label>
-              <input type="text" id="profile-name" placeholder="Your name" disabled>
+              <input type="text" id="profile-name" disabled>
             </div>
+
             <div class="form-group">
               <label>Email</label>
-              <input type="email" id="profile-email" placeholder="Your email" readonly>
+              <input type="email" id="profile-email" readonly>
             </div>
+
             <div class="form-group">
               <label>Phone</label>
-              <input type="tel" id="profile-phone" placeholder="Your phone number" disabled>
+              <input type="tel" id="profile-phone" disabled>
             </div>
+
             <div class="form-group">
               <label>Address</label>
-              <textarea id="profile-address" placeholder="Your address" disabled></textarea>
+              <textarea id="profile-address" disabled></textarea>
             </div>
+
             <button type="button" class="edit-btn" onclick="enableEdit()">Edit Profile</button>
             <button type="button" class="btn" id="save-btn" onclick="saveProfile()" disabled>Save Changes</button>
           </form>
         </div>
 
-        <!-- Orders Section -->
+        <!-- Orders -->
         <div id="orders" class="section">
           <h2>My Orders</h2>
           <div id="orders-list">
-            <!-- Orders will be dynamically loaded here -->
+            <p>No orders yet. <a href="products.html">Start shopping now!</a></p>
           </div>
         </div>
 
-        <!-- Wishlist Section -->
+        <!-- Wishlist -->
         <div id="wishlist" class="section">
           <h2>My Wishlist</h2>
           <div id="wishlist-list">
@@ -85,122 +235,30 @@
           </div>
         </div>
 
-        <!-- Settings Section -->
+        <!-- Settings -->
         <div id="settings" class="section">
           <h2>Settings</h2>
+
           <div class="settings-group">
             <label><input type="checkbox" id="notifications" checked> Receive Email Notifications</label>
           </div>
+
           <div class="settings-group">
             <label><input type="checkbox" id="newsletter" checked> Subscribe to Newsletter</label>
           </div>
+
           <div class="settings-group">
             <button class="btn danger" onclick="changePassword()">Change Password</button>
             <button class="btn danger" onclick="deleteAccount()">Delete Account</button>
           </div>
         </div>
+
       </main>
     </div>
   </section>
 
   <div id="notification" class="notification"></div>
 
-  <!-- Orders and switching script -->
-  <script>
-    // Show section logic
-   function showSection(section) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-  document.getElementById(section).classList.add('active');
-  document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
-  if (section === 'orders') {
-    loadOrders();
-  }
-  if (section === 'wishlist') {
-    renderWishlist();
-  }
-}
-
-// Add this function for wishlist rendering (you can copy it from dashboard.js):
-function renderWishlist() {
-  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  const wishlistList = document.getElementById('wishlist-list');
-  wishlistList.innerHTML = wishlist.length
-    ? wishlist.map(item => `
-      <div class="wishlist-item">
-        <img src="${item.image}" alt="${item.name}">
-        <div class="wishlist-item-details">
-          <h4>${item.name}</h4>
-          <div class="price">₹${item.price}</div>
-        </div>
-        <button class="remove-btn" onclick="removeFromWishlist(${item.id})">Remove</button>
-      </div>`).join('')
-    : '<p>Your wishlist is empty</p>';
-}
-
-// Remove item from wishlist function:
-function removeFromWishlist(id) {
-  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  wishlist = wishlist.filter(item => item.id !== id);
-  localStorage.setItem('wishlist', JSON.stringify(wishlist));
-  renderWishlist();
-}
-
-    // Load orders from localStorage and display
-    function loadOrders() {
-      const orders = JSON.parse(localStorage.getItem('orders')) || [];
-      const ordersContainer = document.getElementById('orders-list');
-      if (orders.length === 0) {
-        ordersContainer.innerHTML = `
-          <div style="text-align:center; padding:40px;">
-            <h3>No orders yet</h3>
-            <a href="products.html" class="btn">Browse Products</a>
-          </div>
-        `;
-        return;
-      }
-
-      ordersContainer.innerHTML = orders.map(order => `
-        <div style="background:#1a1a1a; border-radius:10px; padding:20px; margin-bottom:20px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #333;">
-            <div>
-              <h4 style="color:#00eaff; margin:0;">Order #${order.id}</h4>
-              <p style="color:#888; font-size:14px; margin:5px 0;">Date: ${order.date}</p>
-            </div>
-            <div style="background:#ffa500; color:#000; padding:5px 15px; border-radius:20px; font-weight:bold; height:fit-content;">
-              ${order.status}
-            </div>
-          </div>
-          ${order.items.map(item => `
-            <div style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #2a2a2a;">
-              <img src="${item.image}" style="width:60px; height:60px; border-radius:8px; margin-right:15px; object-fit:cover;">
-              <div style="flex:1;">
-                <h5 style="margin:0 0 5px 0;">${item.name}</h5>
-                <p style="color:#888; margin:0; font-size:14px;">Qty: ${item.quantity} × ₹${item.price.toLocaleString()}</p>
-              </div>
-              <div style="font-weight:bold; color:#00eaff;">₹${(item.price * item.quantity).toLocaleString()}</div>
-            </div>
-          `).join('')}
-          <div style="margin-top:15px; padding-top:15px; border-top:2px solid #00eaff;">
-            <div style="display:flex; justify-content:space-between; margin:8px 0;">
-              <span>Subtotal:</span><span>₹${order.subtotal.toLocaleString()}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin:8px 0;">
-              <span>Tax (5%):</span><span>₹${order.tax.toFixed(2)}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin:8px 0;">
-              <span>Shipping:</span><span>₹${order.shipping}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid #333; font-weight:bold; font-size:18px; color:#00eaff;">
-              <span>Total:</span><span>₹${order.total.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // OPTIONAL: If you want orders to always load on page open, un-comment below
-    // window.addEventListener('load', loadOrders);
-  </script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>

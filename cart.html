@@ -197,130 +197,125 @@
       </div>
     </div>
   </section>
-
   <script>
-    function loadCart() {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const cartItemsContainer = document.getElementById('cart-items');
-      const emptyCart = document.getElementById('empty-cart');
-      const cartSummary = document.getElementById('cart-summary');
-      const cartContainer = document.getElementById('cart-container');
-
-      if (cart.length === 0) {
-        emptyCart.style.display = 'block';
-        cartContainer.style.display = 'none';
-        updateCartCount();
-        return;
-      }
-
-      cartItemsContainer.innerHTML = '';
-      cart.forEach(item => {
-        const div = document.createElement('div');
-        div.classList.add('cart-item');
-        div.innerHTML = `
-          <img src="${item.image}" alt="${item.name}">
-          <div>
-            <h4>${item.name}</h4>
-            <p>₹${item.price.toLocaleString()}</p>
-          </div>
-          <div class="quantity">
-            <button onclick="changeQty(${item.id}, -1)">-</button>
-            <span>${item.quantity}</span>
-            <button onclick="changeQty(${item.id}, 1)">+</button>
-          </div>
-          <div><strong>₹${(item.price * item.quantity).toLocaleString()}</strong></div>
-          <button onclick="removeItem(${item.id})" class="btn" style="background:#ff4444;color:white;">X</button>
-        `;
-        cartItemsContainer.appendChild(div);
-      });
-
-      updateSummary();
-    }
-
-    function changeQty(id, delta) {
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const item = cart.find(i => i.id === id);
-      if (!item) return;
-
-      item.quantity += delta;
-      if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      loadCart();
-    }
-
-    function removeItem(id) {
-      let cart = JSON.parse(localStorage.getItem('cart')) || [];
-      cart = cart.filter(i => i.id !== id);
-      localStorage.setItem('cart', JSON.stringify(cart));
-      loadCart();
-    }
-
-    function updateSummary() {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-      const tax = subtotal * 0.05;
-      const shipping = subtotal > 0 ? 150 : 0;
-      const total = subtotal + tax + shipping;
-
-      document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
-      document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
-      document.getElementById('shipping').textContent = `₹${shipping}`;
-      document.getElementById('total').textContent = `₹${total.toLocaleString()}`;
-
-      updateCartCount();
-    }
-
-    function updateCartCount() {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      document.getElementById('cart-count').textContent =
-        cart.reduce((sum, i) => sum + i.quantity, 0);
-    }
-
-    function checkout() {
+  function loadCart() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    
+    const cartItemsContainer = document.getElementById('cart-items');
+    const emptyCart = document.getElementById('empty-cart');
+    const cartSummary = document.getElementById('cart-summary');
+    const cartContainer = document.getElementById('cart-container');
+
     if (cart.length === 0) {
-        alert("Your cart is empty!");
-        return;
+      emptyCart.style.display = 'block';
+      cartContainer.style.display = 'none';
+      updateCartCount();
+      return;
     }
-    
-    // Calculate order details
+
+    cartItemsContainer.innerHTML = '';
+    cart.forEach(item => {
+      const div = document.createElement('div');
+      div.classList.add('cart-item');
+      div.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <div>
+          <h4>${item.name}</h4>
+          <p>₹${item.price.toLocaleString()}</p>
+        </div>
+        <div class="quantity">
+          <button onclick="changeQty(${item.id}, -1)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="changeQty(${item.id}, 1)">+</button>
+        </div>
+        <div><strong>₹${(item.price * item.quantity).toLocaleString()}</strong></div>
+        <button onclick="removeItem(${item.id})" class="btn" style="background:#ff4444;color:white;">X</button>
+      `;
+      cartItemsContainer.appendChild(div);
+    });
+
+    updateSummary();
+  }
+
+  function changeQty(id, delta) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+
+    item.quantity += delta;
+    if (item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    loadCart();
+  }
+
+  function removeItem(id) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart = cart.filter(i => i.id !== id);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    loadCart();
+  }
+
+  function updateSummary() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
     const tax = subtotal * 0.05;
-    const shipping = 150;
+    const shipping = subtotal > 0 ? 150 : 0;
     const total = subtotal + tax + shipping;
-    
-    // Create order object
-    const order = {
-        id: Date.now(),
-        date: new Date().toLocaleString('en-IN'),
-        items: cart,
-        subtotal: subtotal,
-        tax: tax,
-        shipping: shipping,
-        total: total,
-        status: 'Processing'
-    };
-    
-    // Save order to localStorage
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
-    orders.unshift(order);
-    localStorage.setItem('orders', JSON.stringify(orders));
-    
-    // Clear cart
-    localStorage.removeItem('cart');
-    
-    alert("✅ Order placed successfully! Check Dashboard > My Orders");
-    window.location.href = 'dashboard.html';
+
+    document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+    document.getElementById('tax').textContent = `₹${tax.toFixed(2)}`;
+    document.getElementById('shipping').textContent = `₹${shipping}`;
+    document.getElementById('total').textContent = `₹${total.toLocaleString()}`;
+
+    updateCartCount();
+  }
+
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    document.getElementById('cart-count').textContent =
+      cart.reduce((sum, i) => sum + i.quantity, 0);
+  }
+
+  // ⭐ UPDATED CHECKOUT WITH ORDER HISTORY + STATUS
+  function checkout() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+  const userEmail = sessionStorage.getItem("userEmail");
+  if (!userEmail) {
+    alert("Please login to place the order.");
+    return;
+  }
+
+  if (cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+
+  const orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+  const newOrder = {
+    id: Date.now(),
+    email: userEmail,               // ⭐ store user ownership
+    date: new Date().toLocaleString(),
+    status: "Pending",
+    items: cart,
+    total: cart.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  };
+
+  orders.push(newOrder);
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  localStorage.removeItem("cart");
+
+  alert("✅ Order placed successfully!");
+  loadCart();
 }
+  function logout() {
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  }
 
-    function logout() {
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
-    }
-
-    loadCart();
-  </script>
+  loadCart();
+</script>  
 </body>
 </html>

@@ -190,16 +190,13 @@
 
 <script>
   // ---------- DATA: 7 categories, 10 items each (70 items) ----------
-  // Using picsum.photos seeds so images are unique and deterministic
   const categories = ["Tech","Fashion","Makeup","Accessories","Home Decor","Sports","Books"];
 
-  // helper to generate a sample description
   function sampleDesc(cat, name) {
     return `${name} — premium ${cat.toLowerCase()} pick with excellent reviews.`;
   }
 
   const products = [
-    // Tech (10)
     {id: 1,  category:"Tech", name:"Ultrabook Pro 14", price:74999, img:"https://media.istockphoto.com/id/1430595783/photo/laptop-isolated-on-white-background.jpg?b=1&s=612x612&w=0&k=20&c=brQ6-O5ViwHK_N9lWHBDjTTQ79PCa1aACZa5MyNNQPQ=", desc: sampleDesc("Tech","Ultrabook Pro 14")},
     {id: 2,  category:"Tech", name:"Gaming Desktop GX", price:129999, img:"https://images.pexels.com/photos/7858742/pexels-photo-7858742.jpeg", desc: sampleDesc("Tech","Gaming Desktop GX")},
     {id: 3,  category:"Tech", name:"RTX 4080 GPU", price:89999, img:"https://images.pexels.com/photos/32728403/pexels-photo-32728403.jpeg", desc: sampleDesc("Tech","RTX 4080 GPU")},
@@ -210,8 +207,6 @@
     {id: 8,  category:"Tech", name:"Portable SSD 1TB", price:10999, img:"https://images.pexels.com/photos/30758135/pexels-photo-30758135.jpeg", desc: sampleDesc("Tech","Portable SSD 1TB")},
     {id: 9,  category:"Tech", name:"4K Webcam", price:4499, img:"https://images.pexels.com/photos/24347621/pexels-photo-24347621.jpeg", desc: sampleDesc("Tech","4K Webcam")},
     {id: 10, category:"Tech", name:"Mesh Wi-Fi System", price:12999, img:"https://images.pexels.com/photos/8108717/pexels-photo-8108717.jpeg", desc: sampleDesc("Tech","Mesh Wi-Fi System")},
-
-    // Fashion (10)
     {id: 11, category:"Fashion", name:"Denim Jacket", price:2499, img:"https://images.pexels.com/photos/1105058/pexels-photo-1105058.jpeg", desc: sampleDesc("Fashion","Denim Jacket")},
     {id: 12, category:"Fashion", name:"Casual Sneakers", price:3499, img:"https://images.pexels.com/photos/10084175/pexels-photo-10084175.jpeg", desc: sampleDesc("Fashion","Casual Sneakers")},
     {id: 13, category:"Fashion", name:"Slim Fit Jeans", price:1999, img:"https://images.pexels.com/photos/9211607/pexels-photo-9211607.jpeg", desc: sampleDesc("Fashion","Slim Fit Jeans")},
@@ -222,46 +217,36 @@
     {id: 18, category:"Fashion", name:"Sport Shorts", price:899, img:"https://images.pexels.com/photos/5730452/pexels-photo-5730452.jpeg", desc: sampleDesc("Fashion","Sport Shorts")},
     {id: 19, category:"Fashion", name:"Canvas Tote Bag", price:599, img:"https://images.pexels.com/photos/19197737/pexels-photo-19197737.jpeg", desc: sampleDesc("Fashion","Canvas Tote Bag")},
     {id: 20, category:"Fashion", name:"Formal Loafers", price:2999, img:"https://images.pexels.com/photos/4593811/pexels-photo-4593811.jpeg", desc: sampleDesc("Fashion","Formal Loafers")},
-
-    // Makeup (6)
     {id: 21, category:"Makeup", name:"Matte Lipstick Set", price:899, img:"https://images.pexels.com/photos/2535928/pexels-photo-2535928.jpeg", desc: sampleDesc("Makeup","Matte Lipstick Set")},
     {id: 22, category:"Makeup", name:"Liquid Foundation", price:1299, img:"https://images.pexels.com/photos/8981524/pexels-photo-8981524.jpeg", desc: sampleDesc("Makeup","Liquid Foundation")},
     {id: 23, category:"Makeup", name:"Waterproof Mascara", price:599, img:"https://images.pexels.com/photos/2637820/pexels-photo-2637820.jpeg", desc: sampleDesc("Makeup","Waterproof Mascara")},
     {id: 24, category:"Makeup", name:"Eyeshadow Palette", price:1499, img:"https://images.pexels.com/photos/7290609/pexels-photo-7290609.jpeg", desc: sampleDesc("Makeup","Eyeshadow Palette")},
     {id: 25, category:"Makeup", name:"Blush Compact", price:499, img:"https://images.pexels.com/photos/13019088/pexels-photo-13019088.jpeg", desc: sampleDesc("Makeup","Blush Compact")},
     {id: 26, category:"Makeup", name:"Makeup Brushes Set", price:999, img:"https://images.pexels.com/photos/7446415/pexels-photo-7446415.jpeg", desc: sampleDesc("Makeup","Makeup Brushes Set")},
-
-    // Accessories (6)
     {id: 27, category:"Accessories", name:"Leather Wallet", price:1199, img:"https://images.pexels.com/photos/4386178/pexels-photo-4386178.jpeg", desc: sampleDesc("Accessories","Leather Wallet")},
     {id: 28, category:"Accessories", name:"Wrist Watch Classic", price:4999, img:"https://images.pexels.com/photos/173716/pexels-photo-173716.jpeg", desc: sampleDesc("Accessories","Wrist Watch Classic")},
     {id: 29, category:"Accessories", name:"Sunglasses Polarized", price:1599, img:"https://images.pexels.com/photos/11668301/pexels-photo-11668301.jpeg", desc: sampleDesc("Accessories","Sunglasses Polarized")},
     {id: 30, category:"Accessories", name:"Silk Tie", price:699, img:"https://images.pexels.com/photos/32392710/pexels-photo-32392710.jpeg", desc: sampleDesc("Accessories","Silk Tie")},
     {id: 31, category:"Accessories", name:"Plane-friendly Backpack", price:2999, img:"https://images.pexels.com/photos/2905238/pexels-photo-2905238.jpeg", desc: sampleDesc("Accessories","Plane-friendly Backpack")},
     {id: 32, category:"Accessories", name:"Key Organizer", price:399, img:"https://images.pexels.com/photos/2402712/pexels-photo-2402712.jpeg", desc: sampleDesc("Accessories","Key Organizer")},
-
-    // Home Decor (6)
     {id: 33, category:"Home Decor", name:"Table Lamp Modern", price:1299, img:"https://images.pexels.com/photos/1112598/pexels-photo-1112598.jpeg", desc: sampleDesc("Home Decor","Table Lamp Modern")},
     {id: 34, category:"Home Decor", name:"Decorative Vase", price:799, img:"https://images.pexels.com/photos/34446612/pexels-photo-34446612.jpeg", desc: sampleDesc("Home Decor","Decorative Vase")},
     {id: 35, category:"Home Decor", name:"Wall Art Print", price:1499, img:"https://images.pexels.com/photos/5642100/pexels-photo-5642100.jpeg", desc: sampleDesc("Home Decor","Wall Art Print")},
     {id: 36, category:"Home Decor", name:"Cushion Cover Set", price:599, img:"https://images.pexels.com/photos/6207448/pexels-photo-6207448.jpeg", desc: sampleDesc("Home Decor","Cushion Cover Set")},
     {id: 37, category:"Home Decor", name:"Aromatherapy Diffuser", price:1199, img:"https://images.pexels.com/photos/6915312/pexels-photo-6915312.jpeg", desc: sampleDesc("Home Decor","Aromatherapy Diffuser")},
     {id: 38, category:"Home Decor", name:"Indoor Plant Pot", price:499, img:"https://images.pexels.com/photos/3952027/pexels-photo-3952027.jpeg", desc: sampleDesc("Home Decor","Indoor Plant Pot")},
-
-    // Sports (6)
     {id: 39, category:"Sports", name:"Yoga Mat Pro", price:1299, img:"https://images.pexels.com/photos/6740753/pexels-photo-6740753.jpeg", desc: sampleDesc("Sports","Yoga Mat Pro")},
     {id: 40, category:"Sports", name:"Fitness Tracker Band", price:2999, img:"https://images.pexels.com/photos/4436303/pexels-photo-4436303.jpeg", desc: sampleDesc("Sports","Fitness Tracker Band")},
     {id: 41, category:"Sports", name:"Resistance Bands Set", price:799, img:"https://images.pexels.com/photos/8846214/pexels-photo-8846214.jpeg", desc: sampleDesc("Sports","Resistance Bands Set")},
     {id: 42, category:"Sports", name:"Basketball Pro", price:1199, img:"https://images.pexels.com/photos/8084787/pexels-photo-8084787.jpeg", desc: sampleDesc("Sports","Basketball Pro")},
     {id: 43, category:"Sports", name:"Tennis Racket", price:2499, img:"https://images.pexels.com/photos/5739121/pexels-photo-5739121.jpeg", desc: sampleDesc("Sports","Tennis Racket")},
     {id: 44, category:"Sports", name:"Cycling Helmet", price:1699, img:"https://images.pexels.com/photos/8926957/pexels-photo-8926957.jpeg", desc: sampleDesc("Sports","Cycling Helmet")},
-
-    // Books (6)
     {id: 45, category:"Books", name:"Self-Help Bestseller", price:499, img:"https://images.pexels.com/photos/267586/pexels-photo-267586.jpeg", desc: sampleDesc("Books","Self-Help Bestseller")},
     {id: 46, category:"Books", name:"Modern Fiction Novel", price:399, img:"https://images.pexels.com/photos/30127889/pexels-photo-30127889.jpeg", desc: sampleDesc("Books","Modern Fiction Novel")},
     {id: 47, category:"Books", name:"Cookbook Deluxe", price:699, img:"https://images.pexels.com/photos/7172064/pexels-photo-7172064.jpeg", desc: sampleDesc("Books","Cookbook Deluxe")},
     {id: 48, category:"Books", name:"Children's Story Pack", price:599, img:"https://images.pexels.com/photos/6437499/pexels-photo-6437499.jpeg", desc: sampleDesc("Books","Children's Story Pack")},
     {id: 49, category:"Books", name:"Business Guide", price:799, img:"https://images.pexels.com/photos/34500250/pexels-photo-34500250.jpeg", desc: sampleDesc("Books","Business Guide")},
-    {id: 50, category:"Books", name:"Photography Manual", price:899, img:"https://images.pexels.com/photos/1973889/pexels-photo-1973889.jpeg", desc: sampleDesc("Books","Photography Manual")},
+    {id: 50, category:"Books", name:"Photography Manual", price:899, img:"https://images.pexels.com/photos/1973889/pexels-photo-1973889.jpeg", desc: sampleDesc("Books","Photography Manual")}
   ];
 
   // ---------- UI & Logic ----------
@@ -272,7 +257,6 @@
 
   let activeCategory = "Tech"; // default
 
-  // Build category buttons
   function buildCategoryButtons() {
     categoryBar.innerHTML = "";
     categories.forEach(cat => {
@@ -286,9 +270,7 @@
 
   function setActiveCategory(cat) {
     activeCategory = cat;
-    // update button active state
     document.querySelectorAll(".category-btn").forEach(b => b.classList.toggle("active", b.textContent === cat));
-    // if search is empty, render category; if search has text, show search results still
     if (!searchInput.value.trim()) {
       renderProducts(products.filter(p => p.category === cat));
       resultsInfo.textContent = '';
@@ -297,7 +279,6 @@
     }
   }
 
-  // render an array of products
   function renderProducts(list) {
     productGrid.innerHTML = "";
     if (!list || list.length === 0) {
@@ -321,10 +302,8 @@
     });
   }
 
-  // global search across all categories
   function performGlobalSearch(query) {
     if (!query) {
-      // empty search -> show active category
       renderProducts(products.filter(p => p.category === activeCategory));
       resultsInfo.textContent = '';
       return;
@@ -335,12 +314,11 @@
     renderProducts(matches);
   }
 
-  // sanitize single quotes in names passed to onclick inline (simple helper)
   function escapeHtml(str) {
     return str.replace(/'/g, "\\'");
   }
 
-  // ---------- Cart & Wishlist ----------
+  // ---------- Cart & Per-user Wishlist ----------
   function addToCart(id, name, price, btn) {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const image = btn.closest('.product-card').querySelector('img').src;
@@ -354,18 +332,39 @@
     setTimeout(() => btn.textContent = prev, 900);
   }
 
+  // Per-user wishlist: key = `wishlist_<email>`
+  function getWishlistKeyForCurrentUser() {
+    const email = sessionStorage.getItem('userEmail');
+    if (!email) return null;
+    // sanitize email to safe key (replace @ and .)
+    const safe = email.replace(/[@.]/g, '_');
+    return `wishlist_${safe}`;
+  }
+
   function addToWishlist(id, name, price, btn) {
-    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-    const image = btn.closest('.product-card').querySelector('img').src;
-    if (!wishlist.find(item => item.id === id)) {
-      wishlist.push({ id, name, price, image });
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
-      const prev = btn.textContent;
-      btn.textContent = "Added ❤️";
-      setTimeout(() => btn.textContent = prev, 900);
-    } else {
-      alert("Already in wishlist!");
+    const key = getWishlistKeyForCurrentUser();
+    if (!key) {
+      showNotification ? showNotification('Please login to add to wishlist', 'orange') : alert('Please login to add to wishlist');
+      return;
     }
+
+    const image = btn.closest('.product-card').querySelector('img').src;
+    const wishlist = JSON.parse(localStorage.getItem(key)) || [];
+
+    if (wishlist.find(item => item.id === id)) {
+      // already in this user's wishlist
+      const prev = btn.textContent;
+      btn.textContent = "Already ❤️";
+      setTimeout(() => btn.textContent = prev, 900);
+      return;
+    }
+
+    wishlist.push({ id, name, price, image });
+    localStorage.setItem(key, JSON.stringify(wishlist));
+
+    const prev = btn.textContent;
+    btn.textContent = "Added ❤️";
+    setTimeout(() => btn.textContent = prev, 900);
   }
 
   function updateCartCount() {
@@ -374,7 +373,8 @@
   }
 
   function logout() {
-    localStorage.removeItem('user');
+    // preserve previous behavior: clear sessionStorage and redirect
+    sessionStorage.clear();
     window.location.href = 'login.html';
   }
 
@@ -384,7 +384,7 @@
     performGlobalSearch(q);
   });
   function viewProduct(id) {
-  window.location.href = `product.html?id=${id}`;
+    window.location.href = `product.html?id=${id}`;
   }
 
   // initialize UI
