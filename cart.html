@@ -278,10 +278,43 @@
     }
 
     function checkout() {
-      alert("✅ Order placed successfully!");
-      localStorage.removeItem('cart');
-      loadCart();
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
     }
+    
+    // Calculate order details
+    const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const tax = subtotal * 0.05;
+    const shipping = 150;
+    const total = subtotal + tax + shipping;
+    
+    // Create order object
+    const order = {
+        id: Date.now(),
+        date: new Date().toLocaleString('en-IN'),
+        items: cart,
+        subtotal: subtotal,
+        tax: tax,
+        shipping: shipping,
+        total: total,
+        status: 'Processing'
+    };
+    
+    // Save order to localStorage
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    orders.unshift(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    
+    // Clear cart
+    localStorage.removeItem('cart');
+    
+    alert("✅ Order placed successfully! View it in Dashboard > My Orders");
+    window.location.href = 'dashboard.html';
+}
+
 
     function logout() {
       localStorage.removeItem('user');
