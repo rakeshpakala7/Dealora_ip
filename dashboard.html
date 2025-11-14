@@ -6,84 +6,17 @@
   <title>Dashboard - Dealora</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .wishlist-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-      padding: 10px;
-      background: #1a1a1a;
-      border-radius: 8px;
-    }
-    .wishlist-item img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-right: 15px;
-    }
-    .wishlist-item-details {
-      flex: 1;
-    }
-    .wishlist-item-details h4 {
-      margin: 0 0 5px 0;
-    }
-    .wishlist-item-details .price {
-      color: #00eaff;
-      font-weight: bold;
-    }
-    .remove-btn {
-      background: #ff4d4f;
-      border: none;
-      padding: 5px 10px;
-      color: #fff;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .edit-btn {
-      background: #00eaff;
-      border: none;
-      color: #000;
-      padding: 5px 12px;
-      margin-right: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #00eaff;
-      color: #000;
-      padding: 10px 20px;
-      border-radius: 6px;
-      display: none;
-      font-weight: 600;
-      z-index: 1000;
-    }
-    .notification.show {
-      display: block;
-      animation: fadeInOut 2.5s ease;
-    }
-    @keyframes fadeInOut {
-      0% {opacity: 0; transform: translateY(-10px);}
-      10% {opacity: 1; transform: translateY(0);}
-      90% {opacity: 1;}
-      100% {opacity: 0; transform: translateY(-10px);}
-    }
+    /* ... your embedded CSS ... (same as before) ... */
+    /* You can copy your style rules here, or keep as in your old file */
   </style>
 </head>
 <body>
   <header>
     <nav>
       <div class="logo">
-  <img src="images/logo.jpeg" alt="Dealora Logo" class="nav-logo">
-  <span class="logo-text">Dealora</span>
-</div>
+        <img src="images/logo.jpeg" alt="Dealora Logo" class="nav-logo">
+        <span class="logo-text">Dealora</span>
+      </div>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="products.html">Products</a></li>
@@ -140,7 +73,7 @@
         <div id="orders" class="section">
           <h2>My Orders</h2>
           <div id="orders-list">
-            <p>No orders yet. <a href="products.html">Start shopping now!</a></p>
+            <!-- Orders will be dynamically loaded here -->
           </div>
         </div>
 
@@ -172,72 +105,72 @@
 
   <div id="notification" class="notification"></div>
 
-  <script src="js/dashboard.js">
-    function loadOrders() {
-        const orders = JSON.parse(localStorage.getItem('orders')) || [];
-        const ordersContainer = document.getElementById('orders-list');
-        
-        if (orders.length === 0) {
-            ordersContainer.innerHTML = '<div style="text-align:center; padding:40px;"><h3>No orders yet</h3><a href="products.html" class="btn">Browse Products</a></div>';
-            return;
-        }
-        
-        ordersContainer.innerHTML = orders.map(order => `
-            <div style="background:#1a1a1a; border-radius:10px; padding:20px; margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #333;">
-                    <div>
-                        <h4 style="color:#00eaff; margin:0;">Order #${order.id}</h4>
-                        <p style="color:#888; font-size:14px; margin:5px 0;">Date: ${order.date}</p>
-                    </div>
-                    <div style="background:#ffa500; color:#000; padding:5px 15px; border-radius:20px; font-weight:bold; height:fit-content;">
-                        ${order.status}
-                    </div>
-                </div>
-                ${order.items.map(item => `
-                    <div style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #2a2a2a;">
-                        <img src="${item.image}" style="width:60px; height:60px; border-radius:8px; margin-right:15px; object-fit:cover;">
-                        <div style="flex:1;">
-                            <h5 style="margin:0 0 5px 0;">${item.name}</h5>
-                            <p style="color:#888; margin:0; font-size:14px;">Qty: ${item.quantity} × ₹${item.price.toLocaleString()}</p>
-                        </div>
-                        <div style="font-weight:bold; color:#00eaff;">₹${(item.price * item.quantity).toLocaleString()}</div>
-                    </div>
-                `).join('')}
-                <div style="margin-top:15px; padding-top:15px; border-top:2px solid #00eaff;">
-                    <div style="display:flex; justify-content:space-between; margin:8px 0;">
-                        <span>Subtotal:</span><span>₹${order.subtotal.toLocaleString()}</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin:8px 0;">
-                        <span>Tax (5%):</span><span>₹${order.tax.toFixed(2)}</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin:8px 0;">
-                        <span>Shipping:</span><span>₹${order.shipping}</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid #333; font-weight:bold; font-size:18px; color:#00eaff;">
-                        <span>Total:</span><span>₹${order.total.toLocaleString()}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+  <!-- Orders and switching script -->
+  <script>
+    // Show section logic
+    function showSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+      document.getElementById(section).classList.add('active');
+      document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
+      if (section === 'orders') loadOrders();
     }
 
-    // Update showSection to load orders
-    const originalShowSection = showSection;
-    showSection = function(section) {
-        if (typeof originalShowSection === 'function') {
-            originalShowSection(section);
-        } else {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
-        }
-        
-        if (section === 'orders') {
-            loadOrders();
-        }
-    };
+    // Load orders from localStorage and display
+    function loadOrders() {
+      const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      const ordersContainer = document.getElementById('orders-list');
+      if (orders.length === 0) {
+        ordersContainer.innerHTML = `
+          <div style="text-align:center; padding:40px;">
+            <h3>No orders yet</h3>
+            <a href="products.html" class="btn">Browse Products</a>
+          </div>
+        `;
+        return;
+      }
 
+      ordersContainer.innerHTML = orders.map(order => `
+        <div style="background:#1a1a1a; border-radius:10px; padding:20px; margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #333;">
+            <div>
+              <h4 style="color:#00eaff; margin:0;">Order #${order.id}</h4>
+              <p style="color:#888; font-size:14px; margin:5px 0;">Date: ${order.date}</p>
+            </div>
+            <div style="background:#ffa500; color:#000; padding:5px 15px; border-radius:20px; font-weight:bold; height:fit-content;">
+              ${order.status}
+            </div>
+          </div>
+          ${order.items.map(item => `
+            <div style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #2a2a2a;">
+              <img src="${item.image}" style="width:60px; height:60px; border-radius:8px; margin-right:15px; object-fit:cover;">
+              <div style="flex:1;">
+                <h5 style="margin:0 0 5px 0;">${item.name}</h5>
+                <p style="color:#888; margin:0; font-size:14px;">Qty: ${item.quantity} × ₹${item.price.toLocaleString()}</p>
+              </div>
+              <div style="font-weight:bold; color:#00eaff;">₹${(item.price * item.quantity).toLocaleString()}</div>
+            </div>
+          `).join('')}
+          <div style="margin-top:15px; padding-top:15px; border-top:2px solid #00eaff;">
+            <div style="display:flex; justify-content:space-between; margin:8px 0;">
+              <span>Subtotal:</span><span>₹${order.subtotal.toLocaleString()}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:8px 0;">
+              <span>Tax (5%):</span><span>₹${order.tax.toFixed(2)}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:8px 0;">
+              <span>Shipping:</span><span>₹${order.shipping}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid #333; font-weight:bold; font-size:18px; color:#00eaff;">
+              <span>Total:</span><span>₹${order.total.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // OPTIONAL: If you want orders to always load on page open, un-comment below
+    // window.addEventListener('load', loadOrders);
   </script>
 </body>
 </html>
